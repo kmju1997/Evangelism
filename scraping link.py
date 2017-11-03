@@ -1,18 +1,22 @@
+import os
+import json
+from bs4 import BeautifulSoup as BS
 import requests
 import re
-from bs4 import BeautifulSoup as BS
 
-url = 'http://google.com'
+postreqdata = json.loads(open(os.environ['req']).read())
+response = open(os.environ['res'], 'w')
+text = requests.get(postreqdata['url'])
+soup =  BS(text.content, 'html.parser')
 
-data =  requests.get(url)
+anchor = soup.find_all('a')
 
-soup  = BS(data.content, "html5lib")
+link_list = []
 
-link_list =[]
-
-for link in soup.find_all('a'):
-    if (re.match('(http):[\S]+',link.get('href'))):
+for link in anchor:
+    if(re.match('http:[\S]+',link.get('href'))):
         link_list.append(link.get('href'))
 
-print(link_list)
+response.write(str(link_list))
 
+response.close()
